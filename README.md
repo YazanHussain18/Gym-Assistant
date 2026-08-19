@@ -36,3 +36,16 @@ All workout data is stored locally in the browser on that device. Use Export Bac
 
 ## Important
 This app is a training tracker, not a medical diagnostic tool. Pain-based adjustments are conservative rules only.
+
+
+## V2 Smart Coach
+- Trend-aware progression targets based on recent logged performance
+- Automatic weight increases when the top of the rep range is achieved
+- Conservative load reductions after performance drops / near-failure
+- Green / Yellow / Red readiness logic
+- High-intensity sport override for lower-body sessions
+- Activity logging for football, padel, hiking, etc.
+- Pain-aware set/load reductions for shoulder, knee, and ankle-sensitive exercises
+- 7-day muscle set and frequency analytics
+- Coach explanations shown for each exercise target
+- Migrates V1 local data when possible
