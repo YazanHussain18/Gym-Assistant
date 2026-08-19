@@ -38,8 +38,9 @@ const defaultData = {
   measurements: [],
   sessions: [],
   activities: [],
-  readiness: {energy:7,soreness:2,pain:0,sleep:7,sport:false,travel:false},
+  readiness: {energy:7,soreness:2,pain:0,sleep:7,sport:false,travel:false,sorenessLocations:[],painLocations:[],painNote:""},
   theme:"dark",
+  auth: {profileName:"", pinHash:"", remembered:false},
   coach: {
     autoAdjust:true,
     deloadSensitivity:"medium",
@@ -139,6 +140,59 @@ const programs = {
   "Rest / Sport":{note:"Rest unless you choose sport. Intense football counts as a hard conditioning session.",warmup:[],exercises:[]}
 };
 
+
+const bodyLocations = [
+  "Left Shoulder","Right Shoulder","Chest","Upper Back","Lower Back",
+  "Left Biceps","Right Biceps","Left Triceps","Right Triceps",
+  "Left Elbow","Right Elbow","Left Wrist","Right Wrist",
+  "Left Hip","Right Hip","Left Quad","Right Quad","Left Hamstring","Right Hamstring",
+  "Left Knee","Right Knee","Left Calf","Right Calf","Left Ankle","Right Ankle"
+];
+
+function locationTagsToJoints(locations=[]){
+  const joints = new Set();
+  locations.forEach(x=>{
+    const t=x.toLowerCase();
+    if(t.includes("shoulder")) joints.add("shoulder");
+    if(t.includes("knee")) joints.add("knee");
+    if(t.includes("ankle") || t.includes("calf")) joints.add("ankle");
+    if(t.includes("lower back") || t.includes("upper back")) joints.add("lowback");
+    if(t.includes("elbow")) joints.add("elbow");
+    if(t.includes("wrist")) joints.add("wrist");
+    if(t.includes("hip") || t.includes("quad") || t.includes("hamstring")) joints.add("lowerbody");
+  });
+  return [...joints];
+}
+
+function renderBodyLocationSelectors(){
+  const make=(id,selected)=>{
+    const box=document.getElementById(id);
+    if(!box) return;
+    box.innerHTML="";
+    bodyLocations.forEach(loc=>{
+      const lab=document.createElement("label");
+      lab.className="body-chip";
+      lab.innerHTML=`<input type="checkbox" value="${loc}" ${selected.includes(loc)?"checked":""}> ${loc}`;
+      box.appendChild(lab);
+    });
+  };
+  make("sorenessLocations", data.readiness.sorenessLocations||[]);
+  make("painLocations", data.readiness.painLocations||[]);
+  document.getElementById("painNote").value=data.readiness.painNote||"";
+  updateLocationVisibility();
+}
+
+function updateLocationVisibility(){
+  const s=+document.getElementById("sorenessRange").value;
+  const p=+document.getElementById("painRange").value;
+  document.getElementById("sorenessLocationBox").classList.toggle("hidden", s===0);
+  document.getElementById("painLocationBox").classList.toggle("hidden", p===0);
+}
+
+function selectedBodyLocations(id){
+  return [...document.querySelectorAll(`#${id} input[type=checkbox]:checked`)].map(x=>x.value);
+}
+
 let data = loadData();
 let currentSessionName = null;
 let currentPlan = null;
@@ -160,6 +214,105 @@ function loadData(){
   }catch(e){ return structuredClone(defaultData); }
 }
 function saveData(){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+
+
+function simpleHash(str){
+  let h=2166136261;
+  for(let i=0;i<str.length;i++){
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h,16777619);
+  }
+  return (h>>>0).toString(16);
+}
+
+function hasSavedProfile(){
+  return !!(data.auth && data.auth.profileName);
+}
+
+function showLogin(){
+  const screen=document.getElementById("loginScreen");
+  if(!screen) return;
+
+  if(hasSavedProfile()){
+    document.getElementById("existingProfileBox").classList.remove("hidden");
+    document.getElementById("newProfileFields").classList.add("hidden");
+    document.getElementById("existingProfileName").textContent=data.auth.profileName;
+    document.getElementById("profileAvatar").textContent=(data.auth.profileName[0]||"U").toUpperCase();
+
+    if(data.auth.pinHash){
+      document.getElementById("existingPinField").classList.remove("hidden");
+    } else {
+      document.getElementById("existingPinField").classList.add("hidden");
+    }
+    document.getElementById("useDifferentProfileBtn").classList.remove("hidden");
+  } else {
+    document.getElementById("existingProfileBox").classList.add("hidden");
+    document.getElementById("newProfileFields").classList.remove("hidden");
+    document.getElementById("existingPinField").classList.add("hidden");
+    document.getElementById("useDifferentProfileBtn").classList.add("hidden");
+  }
+
+  // If remembered and no PIN is required, bypass the screen
+  if(hasSavedProfile() && data.auth.remembered && !data.auth.pinHash){
+    screen.classList.add("hidden");
+  } else {
+    screen.classList.remove("hidden");
+  }
+}
+
+function completeLogin(){
+  if(hasSavedProfile()){
+    if(data.auth.pinHash){
+      const pin=document.getElementById("existingPinInput").value.trim();
+      if(simpleHash(pin)!==data.auth.pinHash){
+        alert("Incorrect PIN.");
+        return;
+      }
+    }
+    data.auth.remembered=true;
+    saveData();
+    document.getElementById("loginScreen").classList.add("hidden");
+    renderAll();
+    return;
+  }
+
+  const name=document.getElementById("loginName").value.trim();
+  const pin=document.getElementById("loginPin").value.trim();
+  if(!name){
+    alert("Enter your name to create your profile.");
+    return;
+  }
+  if(pin && !/^\d{4,6}$/.test(pin)){
+    alert("PIN must be 4–6 digits.");
+    return;
+  }
+
+  data.auth.profileName=name;
+  data.auth.pinHash=pin ? simpleHash(pin) : "";
+  data.auth.remembered=true;
+  saveData();
+  document.getElementById("loginScreen").classList.add("hidden");
+  renderAll();
+}
+
+function useDifferentProfile(){
+  if(!confirm("Create a new profile on this device? Your current saved training data will be reset.")) return;
+  localStorage.removeItem(STORE_KEY);
+  data=structuredClone(defaultData);
+  document.getElementById("existingPinInput").value="";
+  document.getElementById("loginName").value="";
+  document.getElementById("loginPin").value="";
+  showLogin();
+  renderAll();
+}
+
+function logout(){
+  data.auth.remembered=false;
+  saveData();
+  document.getElementById("existingPinInput").value="";
+  showLogin();
+}
+
 
 function todayName(){
   return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][new Date().getDay()];
@@ -240,15 +393,40 @@ function weightStep(target){
 }
 
 function jointModifier(ex){
-  const p=data.readiness.pain;
-  if(!ex.joint || p<3) return {sets:0,targetDelta:0,note:""};
-  if(ex.joint==="shoulder" && (ex.name.includes("Incline") || ex.name.includes("Lateral") || ex.name.includes("Chest-Supported"))){
-    return {sets:-1,targetDelta:-1,note:"Shoulder pain readiness flag: reduce one set / load and keep ROM pain-free."};
+  const painLevel=data.readiness.pain||0;
+  const soreLevel=data.readiness.soreness||0;
+  const painLocs=data.readiness.painLocations||[];
+  const soreLocs=data.readiness.sorenessLocations||[];
+  const painJoints=locationTagsToJoints(painLocs);
+  const soreJoints=locationTagsToJoints(soreLocs);
+
+  let risk = false;
+  let reason = [];
+
+  if(ex.joint && painJoints.includes(ex.joint)){ risk=true; reason.push(`pain reported in ${painLocs.join(", ")}`); }
+  if(ex.joint==="knee" && painJoints.includes("lowerbody")){ risk=true; reason.push("lower-body pain reported"); }
+  if(ex.joint==="ankle" && painJoints.includes("lowerbody")){ risk=true; reason.push("lower-body pain reported"); }
+
+  let sets=0, targetDelta=0;
+
+  if(risk && painLevel>=5){
+    return {sets:-99,targetDelta:-99,skip:true,note:`Skipped by coach: ${reason.join("; ")}.`};
   }
-  if(ex.joint==="knee" || ex.joint==="ankle"){
-    return {sets:-1,targetDelta:-1,note:"Lower-body pain readiness flag: reduce one set and avoid loading through pain."};
+  if(risk && painLevel>=3){
+    sets=-1; targetDelta=-1;
   }
-  return {sets:0,targetDelta:0,note:""};
+
+  if(ex.joint && soreJoints.includes(ex.joint) && soreLevel>=5){
+    sets=Math.min(sets,-1);
+    reason.push(`soreness reported in ${soreLocs.join(", ")}`);
+  }
+
+  return {
+    sets,
+    targetDelta,
+    skip:false,
+    note: reason.length ? `Adjusted because ${reason.join("; ")}.` : ""
+  };
 }
 
 function workloadModifier(sessionName){
@@ -284,6 +462,8 @@ function buildCoachPlan(baseSession){
     let sets=ex.sets;
     let target=ex.target;
     let note=ex.note;
+
+    if(jm.skip){ return {...ex,skip:true,sets:0,target:ex.target,coachTrend:trend,note:(ex.note+" "+jm.note).trim()}; }
 
     if(lvl==="yellow" && sets>=3) sets-=1;
     if(lvl==="red" && sets>=3) sets=Math.max(1,sets-1);
@@ -398,6 +578,14 @@ function renderWorkout(sessionName){
 
   const list=document.getElementById("exerciseList"); list.innerHTML="";
   p.exercises.forEach((ex,idx)=>{
+    if(ex.skip){
+      const card=document.createElement("div"); card.className="exercise"; card.dataset.exercise=ex.name;
+      card.innerHTML=`<div class="exercise-head"><div><h3>${idx+1}. ${ex.name}</h3>
+      <div class="small" style="color:var(--bad)"><strong>Coach skipped this exercise.</strong></div>
+      <div class="small">${ex.note||""}</div></div></div>`;
+      list.appendChild(card);
+      return;
+    }
     const targetText=ex.unit==="BW"?"BW":ex.target?`${ex.target} ${ex.unit}`:ex.unit;
     const card=document.createElement("div"); card.className="exercise"; card.dataset.exercise=ex.name;
     const state=ex.coachTrend.state;
@@ -504,6 +692,7 @@ function renderHistory(){
 }
 
 function renderSettings(){
+  const profileEl=document.getElementById("settingsProfileName"); if(profileEl) profileEl.textContent=(data.auth&&data.auth.profileName)||"Guest";
   const se=document.getElementById("scheduleEditor"); se.innerHTML="";
   data.schedule.forEach((x,i)=>{
     const row=document.createElement("div");row.className="week-day";
@@ -548,7 +737,7 @@ function renderSettings(){
   }
 }
 
-function renderAll(){renderDashboard();renderWorkout(sessionForToday());renderProgress();renderHistory();renderSettings();}
+function renderAll(){renderDashboard();renderWorkout(sessionForToday());renderProgress();renderHistory();renderSettings();renderBodyLocationSelectors();}
 
 function switchView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
@@ -563,7 +752,7 @@ document.getElementById("finishWorkoutBtn").addEventListener("click",finishWorko
 ["energy","soreness","pain","sleep"].forEach(k=>{
   const el=document.getElementById(k+"Range"), out=document.getElementById(k+"Val");
   el.value=data.readiness[k]; out.textContent=el.value;
-  el.addEventListener("input",()=>out.textContent=el.value);
+  el.addEventListener("input",()=>{out.textContent=el.value; if(k==="soreness"||k==="pain") updateLocationVisibility();});
 });
 document.getElementById("sportToggle").checked=data.readiness.sport;
 document.getElementById("travelToggle").checked=data.readiness.travel;
@@ -571,6 +760,19 @@ document.getElementById("applyReadiness").addEventListener("click",()=>{
   ["energy","soreness","pain","sleep"].forEach(k=>data.readiness[k]=+document.getElementById(k+"Range").value);
   data.readiness.sport=document.getElementById("sportToggle").checked;
   data.readiness.travel=document.getElementById("travelToggle").checked;
+  data.readiness.sorenessLocations = data.readiness.soreness>0 ? selectedBodyLocations("sorenessLocations") : [];
+  data.readiness.painLocations = data.readiness.pain>0 ? selectedBodyLocations("painLocations") : [];
+  data.readiness.painNote = document.getElementById("painNote").value.trim();
+
+  if(data.readiness.soreness>0 && !data.readiness.sorenessLocations.length){
+    alert("Select where you are sore so the coach can adjust accurately.");
+    return;
+  }
+  if(data.readiness.pain>0 && !data.readiness.painLocations.length){
+    alert("Select where you feel pain so the coach can adjust accurately.");
+    return;
+  }
+
   saveData(); currentSessionName=null; currentPlan=null; renderAll();
 });
 
@@ -604,5 +806,12 @@ document.getElementById("resetBtn").addEventListener("click",()=>{
   if(confirm("Reset all local data?")){localStorage.removeItem(STORE_KEY);data=structuredClone(defaultData);renderAll();}
 });
 
+
+document.getElementById("loginBtn")?.addEventListener("click",completeLogin);
+document.getElementById("useDifferentProfileBtn")?.addEventListener("click",useDifferentProfile);
+document.getElementById("logoutBtn")?.addEventListener("click",logout);
+
 if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js"))}
 renderAll();
+renderBodyLocationSelectors();
+showLogin();

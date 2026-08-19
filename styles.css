@@ -50,3 +50,23 @@ button{border:0;border-radius:12px;padding:12px 14px;font-weight:700;font-size:1
 .bottom-nav button{background:transparent;color:var(--muted);padding:10px 4px;font-size:12px}.bottom-nav button.active{color:var(--accent)}
 .import-label{display:block;margin-top:10px;background:var(--panel2);border:1px solid var(--border);padding:12px;border-radius:12px;font-weight:700}.import-label input{display:none}
 @media(max-width:520px){.grid.two,.readiness-grid,.measurement-grid{grid-template-columns:1fr 1fr}.hero{align-items:flex-start;flex-direction:column}.hero .primary{width:100%}}
+
+.login-screen{
+  position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;align-items:center;justify-content:center;
+  padding:24px;padding-top:max(24px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))
+}
+.login-screen.hidden{display:none}
+.login-card{width:min(100%,420px);background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+.login-card h1{font-size:32px;margin-top:8px}
+.login-label{display:block;color:var(--muted);font-size:13px;margin:14px 0 6px}
+.login-label input{margin-top:7px}
+.login-main{width:100%;margin-top:18px;font-size:16px;padding:14px}
+.existing-profile{display:flex;align-items:center;gap:12px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;margin:16px 0}
+.existing-profile.hidden,.hidden{display:none!important}
+.profile-avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:white;font-weight:900;font-size:18px}
+
+.body-location-box{margin:12px 0;padding:12px;background:var(--panel2);border:1px solid var(--border);border-radius:14px}
+.body-location-box h4{margin:0 0 10px;font-size:14px}
+.body-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.body-chip{display:flex;align-items:center;gap:8px;padding:9px 10px;background:var(--panel);border:1px solid var(--border);border-radius:10px;font-size:13px}
+.body-chip input{width:auto}

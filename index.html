@@ -13,6 +13,43 @@
   <title>Gym Assistant</title>
 </head>
 <body>
+
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="eyebrow">GYM ASSISTANT</div>
+      <h1>Welcome back</h1>
+      <p class="muted">Your training data stays tied to your profile on this device.</p>
+
+      <div id="existingProfileBox" class="existing-profile hidden">
+        <div class="profile-avatar" id="profileAvatar">Y</div>
+        <div>
+          <strong id="existingProfileName">Yazan</strong>
+          <div class="small">Saved profile found</div>
+        </div>
+      </div>
+
+      <div id="newProfileFields">
+        <label class="login-label">Your name
+          <input id="loginName" type="text" autocomplete="name" placeholder="Yazan">
+        </label>
+
+        <label class="login-label">Optional PIN
+          <input id="loginPin" type="password" inputmode="numeric" maxlength="6" placeholder="4–6 digits">
+        </label>
+        <div class="small">The PIN is optional and only protects access on this device.</div>
+      </div>
+
+      <div id="existingPinField" class="hidden">
+        <label class="login-label">Enter PIN
+          <input id="existingPinInput" type="password" inputmode="numeric" maxlength="6" placeholder="PIN">
+        </label>
+      </div>
+
+      <button id="loginBtn" class="primary login-main">Continue</button>
+      <button id="useDifferentProfileBtn" class="ghost hidden">Use a different profile</button>
+    </div>
+  </div>
+
   <header class="topbar">
     <div>
       <div class="eyebrow">PERSONAL TRAINING SYSTEM</div>
@@ -68,6 +105,20 @@
             <span id="sleepVal">7</span>
           </label>
         </div>
+
+        <div id="sorenessLocationBox" class="body-location-box hidden">
+          <h4>Where are you sore?</h4>
+          <div class="body-grid" id="sorenessLocations"></div>
+        </div>
+
+        <div id="painLocationBox" class="body-location-box hidden">
+          <h4>Where do you feel pain?</h4>
+          <div class="body-grid" id="painLocations"></div>
+          <label class="small">Pain note
+            <input id="painNote" type="text" placeholder="e.g. left ankle when walking, front of shoulder on incline press">
+          </label>
+        </div>
+
         <div class="toggles">
           <label><input id="sportToggle" type="checkbox"> Intense sport in last 24h</label>
           <label><input id="travelToggle" type="checkbox"> Travel / heavy workload</label>
@@ -152,6 +203,18 @@
         <h3>Weekly schedule</h3>
         <p class="muted">The app automatically shifts sessions if sport, travel, pain, or fatigue changes your week.</p>
         <div id="scheduleEditor"></div>
+      </div>
+
+
+      <div class="card">
+        <h3>Profile</h3>
+        <div class="row between">
+          <div>
+            <strong id="settingsProfileName">—</strong>
+            <div class="small">Signed in on this device</div>
+          </div>
+          <button id="logoutBtn" class="secondary">Log out</button>
+        </div>
       </div>
 
       <div class="card">

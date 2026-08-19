@@ -49,3 +49,27 @@ This app is a training tracker, not a medical diagnostic tool. Pain-based adjust
 - 7-day muscle set and frequency analytics
 - Coach explanations shown for each exercise target
 - Migrates V1 local data when possible
+
+
+## V3 Profile Login
+- First-run profile creation with your name
+- Optional 4–6 digit local PIN
+- Persistent remembered profile on the same iPhone/browser
+- Logout support
+- Saved profile name shown in Settings
+- Existing V2 data is migrated when possible
+
+### Important
+This is a local-device profile, not a cloud account. It remembers you on the same iPhone/PWA installation. For cross-device login and secure cloud sync, the app would need a backend/auth provider such as Supabase, Firebase, or Sign in with Apple.
+
+
+## V4 Pain & Soreness Mapping
+- Readiness now asks WHERE soreness exists whenever soreness > 0
+- Readiness now asks WHERE pain exists whenever pain > 0
+- Supports left/right shoulder, arms, elbows, wrists, hips, legs, knees, calves, ankles, and back
+- Optional pain note for movement-specific symptoms
+- Coach maps pain/soreness locations to affected exercises
+- Moderate pain reduces sets/load
+- Higher pain can automatically skip affected exercises
+- High soreness can reduce volume for the affected region
+- Lower-body pain can alter leg-day loading more precisely
