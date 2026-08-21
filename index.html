@@ -1,239 +1,155 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#111827" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Gym Assistant" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="stylesheet" href="styles.css" />
-  <title>Gym Assistant</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<title>Gym Assistant V6</title>
+<style>
+:root{--bg:#09111f;--panel:#111b2d;--panel2:#18243a;--text:#f8fafc;--muted:#9fb0c6;--accent:#5ea4ff;--good:#3ddc97;--warn:#ffc857;--bad:#ff6b7a;--border:#263852}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}body{padding-bottom:82px}
+header{position:sticky;top:0;z-index:20;background:#09111fee;backdrop-filter:blur(16px);padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+main{max-width:780px;margin:auto;padding:16px}.view{display:none}.view.active{display:block}.card{background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:15px;margin-bottom:13px}
+h1,h2,h3{margin:.2rem 0 .7rem}.eyebrow{font-size:11px;letter-spacing:.14em;color:var(--accent);font-weight:900}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+button,input,select,textarea{font:inherit}button{border:0;border-radius:12px;padding:12px 14px;font-weight:800}.primary{background:var(--accent);color:white}.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--border)}.danger{background:var(--bad);color:white}.full{width:100%}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:var(--text);font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.grow{flex:1}
+.hero{display:flex;justify-content:space-between;gap:12px;align-items:center}.badge{padding:5px 8px;border-radius:999px;font-size:11px;background:var(--good);color:#062115;font-weight:900}
+.week{display:grid;gap:8px}.weekrow{display:grid;grid-template-columns:90px 1fr;gap:10px;align-items:center;padding:9px;background:var(--panel2);border-radius:11px}.weekrow.today{outline:2px solid var(--accent)}
+.readiness{display:grid;grid-template-columns:1fr 1fr;gap:12px}.readiness label{font-size:13px;color:var(--muted)}.readiness input{padding:0}
+.locgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.loc{display:flex;gap:7px;align-items:center;padding:8px;background:var(--panel);border:1px solid var(--border);border-radius:9px;font-size:12px}.loc input{width:auto}.hidden{display:none!important}
+.exercise{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:13px;margin-bottom:11px}.exercise.progress{border-color:var(--good)}.exercise.reduce{border-color:var(--warn)}.exercise.skip{border-color:var(--bad);opacity:.75}
+.setrow{display:grid;grid-template-columns:36px 1fr 1fr 1fr;gap:7px;margin-top:7px;align-items:center}.setrow input{padding:8px}.target{color:#95c4ff;font-size:13px}
+.builder{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:13px;margin-bottom:12px}.brow{display:grid;grid-template-columns:2fr .7fr .7fr 1fr 1.2fr 36px;gap:6px;align-items:end;padding:9px 0;border-bottom:1px solid var(--border)}.brow label{font-size:10px;color:var(--muted)}.remove{background:var(--bad);color:white;padding:9px}
+.onboard{position:fixed;inset:0;z-index:100;background:var(--bg);overflow:auto;padding:22px}.onwrap{max-width:720px;margin:auto}.step{display:none}.step.active{display:block}.step h1{font-size:34px}.stepper{display:flex;gap:8px;margin:10px 0 22px}.dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--panel2);font-size:12px;font-weight:900}.dot.active{background:var(--accent)}.line{height:2px;background:var(--border);flex:1;margin-top:13px}
+.bottom{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);background:#111b2df5;backdrop-filter:blur(16px);border-top:1px solid var(--border);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}.bottom button{background:transparent;color:var(--muted);font-size:12px;padding:9px 2px}.bottom button.active{color:var(--accent)}
+@media(max-width:640px){.brow{grid-template-columns:1fr 1fr}.brow label:first-child{grid-column:1/3}.hero{flex-direction:column;align-items:flex-start}.hero button{width:100%}}
+</style>
 </head>
 <body>
+<div id="onboard" class="onboard hidden">
+ <div class="onwrap">
+  <div class="eyebrow">CLEAN START SETUP</div>
+  <div class="stepper"><span class="dot active">1</span><span class="line"></span><span class="dot">2</span><span class="line"></span><span class="dot">3</span><span class="line"></span><span class="dot">4</span></div>
+  <section class="step active" data-step="1">
+   <h1>Create your profile</h1><p class="muted">No routine or workout data is preloaded.</p>
+   <div class="grid2">
+    <label>Name<input id="obName"></label><label>Height (cm)<input id="obHeight" type="number" step=".1"></label>
+    <label>Weight (kg)<input id="obWeight" type="number" step=".1"></label>
+    <label>Primary goal<select id="obGoal"><option>Build muscle & strength</option><option>Athletic performance</option><option>Fat loss</option><option>General fitness</option><option>Custom</option></select></label>
+   </div>
+   <label>Goal notes<textarea id="obNotes" rows="3" placeholder="e.g. bigger arms, stay athletic"></textarea></label>
+   <button class="primary full next" data-next="2">Continue</button>
+  </section>
+  <section class="step" data-step="2">
+   <h1>Enter your weekly routine</h1><p class="muted">Type your own session for every day. Use Rest when applicable.</p>
+   <div id="obRoutine" class="week"></div>
+   <div class="row"><button class="secondary grow prev" data-prev="1">Back</button><button class="primary grow next" data-next="3">Continue</button></div>
+  </section>
+  <section class="step" data-step="3">
+   <h1>Add your workouts</h1><p class="muted">Each unique session gets its own exercise list.</p>
+   <div id="obWorkouts"></div>
+   <div class="row"><button class="secondary grow prev" data-prev="2">Back</button><button class="primary grow next" data-next="4">Continue</button></div>
+  </section>
+  <section class="step" data-step="4">
+   <h1>Review your plan</h1><div id="obReview" class="card"></div>
+   <div class="row"><button class="secondary grow prev" data-prev="3">Back</button><button id="finishSetup" class="primary grow">Create my plan</button></div>
+  </section>
+ </div>
+</div>
 
-  <div id="loginScreen" class="login-screen">
-    <div class="login-card">
-      <div class="eyebrow">GYM ASSISTANT</div>
-      <h1>Welcome back</h1>
-      <p class="muted">Your training data stays tied to your profile on this device.</p>
-
-      <div id="existingProfileBox" class="existing-profile hidden">
-        <div class="profile-avatar" id="profileAvatar">Y</div>
-        <div>
-          <strong id="existingProfileName">Yazan</strong>
-          <div class="small">Saved profile found</div>
-        </div>
-      </div>
-
-      <div id="newProfileFields">
-        <label class="login-label">Your name
-          <input id="loginName" type="text" autocomplete="name" placeholder="Yazan">
-        </label>
-
-        <label class="login-label">Optional PIN
-          <input id="loginPin" type="password" inputmode="numeric" maxlength="6" placeholder="4–6 digits">
-        </label>
-        <div class="small">The PIN is optional and only protects access on this device.</div>
-      </div>
-
-      <div id="existingPinField" class="hidden">
-        <label class="login-label">Enter PIN
-          <input id="existingPinInput" type="password" inputmode="numeric" maxlength="6" placeholder="PIN">
-        </label>
-      </div>
-
-      <button id="loginBtn" class="primary login-main">Continue</button>
-      <button id="useDifferentProfileBtn" class="ghost hidden">Use a different profile</button>
-    </div>
+<header><div><div class="eyebrow">SMART TRAINING SYSTEM</div><h1>Gym Assistant <span class="badge">V6</span></h1></div></header>
+<main>
+<section id="home" class="view active">
+ <div class="card hero"><div><div class="eyebrow">TODAY</div><h2 id="homeTitle">—</h2><p id="homeSummary" class="muted"></p></div><button id="openToday" class="primary">Open workout</button></div>
+ <div class="card"><div class="row between"><div><div class="eyebrow">SMART COACH</div><h3 id="coachHeadline">Ready</h3></div><span id="coachBadge" class="badge">GREEN</span></div><p id="coachText" class="muted"></p><div id="coachReasons"></div></div>
+ <div class="card">
+  <h3>Today’s readiness</h3>
+  <div class="readiness">
+   <label>Energy <span id="energyVal">7</span><input id="energyRange" type="range" min="1" max="10" value="7"></label>
+   <label>Sleep <span id="sleepVal">7</span><input id="sleepRange" type="range" min="1" max="10" value="7"></label>
+   <label>Soreness <span id="sorenessVal">0</span><input id="sorenessRange" type="range" min="0" max="10" value="0"></label>
+   <label>Pain <span id="painVal">0</span><input id="painRange" type="range" min="0" max="10" value="0"></label>
   </div>
+  <div id="soreBox" class="card hidden"><strong>Where are you sore?</strong><div id="soreLocs" class="locgrid"></div></div>
+  <div id="painBox" class="card hidden"><strong>Where do you feel pain?</strong><div id="painLocs" class="locgrid"></div><input id="painNote" placeholder="Optional note"></div>
+  <div style="display:grid;gap:8px;margin:10px 0"><label><input id="sport" type="checkbox"> Intense sport in last 24h</label><label><input id="workload" type="checkbox"> Heavy workload / travel</label></div>
+  <button id="adjustBtn" class="primary full">Adjust today’s workout</button>
+ </div>
+ <div class="card"><h3>This week</h3><div id="weekView" class="week"></div></div>
+</section>
 
-  <header class="topbar">
-    <div>
-      <div class="eyebrow">PERSONAL TRAINING SYSTEM</div>
-      <h1>Gym Assistant</h1>
-    </div>
-    <button id="themeBtn" class="ghost">◐</button>
-  </header>
+<section id="today" class="view">
+ <div class="row between"><div><div class="eyebrow">TODAY'S SESSION</div><h2 id="todayTitle">—</h2></div><button id="finishBtn" class="primary">Finish</button></div>
+ <p id="todayNote" class="muted"></p><div id="exerciseList"></div>
+ <div class="card"><h3>Session notes</h3><textarea id="sessionNotes" rows="4"></textarea></div>
+</section>
 
-  <main>
-    <section id="dashboard" class="view active">
-      <div class="hero card">
-        <div>
-          <div class="eyebrow">TODAY</div>
-          <h2 id="todayTitle">Loading…</h2>
-          <p id="todayReason" class="muted"></p>
-        </div>
-        <button id="startTodayBtn" class="primary">Open workout</button>
-      </div>
+<section id="progress" class="view">
+ <div class="eyebrow">PROGRESS</div><h2>Trends</h2>
+ <div class="card"><h3>Weigh-in</h3><div class="row"><input id="weightInput" class="grow" type="number" step=".1" placeholder="kg"><button id="saveWeight" class="primary">Save</button></div><div id="weightHistory"></div></div>
+ <div class="card"><h3>Exercise trends</h3><div id="trendList"></div></div>
+ <div class="card"><h3>7-day muscle coverage</h3><div id="coverage"></div></div>
+</section>
 
-      <div class="grid two">
-        <div class="card stat">
-          <span>Latest weight</span>
-          <strong id="latestWeight">—</strong>
-          <small id="weightTrend">No trend yet</small>
-        </div>
-        <div class="card stat">
-          <span>This week</span>
-          <strong id="sessionsDone">0 / 5</strong>
-          <small>gym sessions</small>
-        </div>
-      </div>
+<section id="plan" class="view">
+ <div class="eyebrow">YOUR PLAN</div><h2>Routine & workouts</h2>
+ <div class="card"><h3>Weekly routine</h3><div id="planRoutine" class="week"></div><button id="saveRoutine" class="secondary full">Save routine</button></div>
+ <div id="planWorkouts"></div><button id="saveWorkouts" class="primary full">Save workouts</button>
+</section>
 
-      <div class="card">
-        <div class="row between">
-          <h3>Readiness check</h3>
-          <span id="readinessBadge" class="badge">Green</span>
-        </div>
-        <div class="readiness-grid">
-          <label>Energy
-            <input id="energyRange" type="range" min="1" max="10" value="7" />
-            <span id="energyVal">7</span>
-          </label>
-          <label>Soreness
-            <input id="sorenessRange" type="range" min="0" max="10" value="2" />
-            <span id="sorenessVal">2</span>
-          </label>
-          <label>Pain
-            <input id="painRange" type="range" min="0" max="10" value="0" />
-            <span id="painVal">0</span>
-          </label>
-          <label>Sleep
-            <input id="sleepRange" type="range" min="1" max="10" value="7" />
-            <span id="sleepVal">7</span>
-          </label>
-        </div>
+<section id="settings" class="view">
+ <div class="eyebrow">SETTINGS</div><h2>Profile & data</h2>
+ <div class="card"><div class="grid2"><label>Name<input id="setName"></label><label>Height (cm)<input id="setHeight" type="number"></label><label>Weight (kg)<input id="setWeight" type="number"></label><label>Goal<input id="setGoal"></label></div><label>Goal notes<textarea id="setNotes" rows="3"></textarea></label><button id="saveProfile" class="secondary full">Save profile</button></div>
+ <div class="card"><button id="exportBtn" class="secondary full">Export backup</button><label class="secondary full" style="display:block;margin-top:8px;text-align:center">Import backup<input id="importInput" type="file" accept=".json" hidden></label><button id="resetBtn" class="danger full" style="margin-top:8px">Reset to clean slate</button></div>
+</section>
+</main>
+<nav class="bottom"><button data-view="home" class="active">Home</button><button data-view="today">Today</button><button data-view="progress">Progress</button><button data-view="plan">Plan</button><button data-view="settings">Settings</button></nav>
 
-        <div id="sorenessLocationBox" class="body-location-box hidden">
-          <h4>Where are you sore?</h4>
-          <div class="body-grid" id="sorenessLocations"></div>
-        </div>
-
-        <div id="painLocationBox" class="body-location-box hidden">
-          <h4>Where do you feel pain?</h4>
-          <div class="body-grid" id="painLocations"></div>
-          <label class="small">Pain note
-            <input id="painNote" type="text" placeholder="e.g. left ankle when walking, front of shoulder on incline press">
-          </label>
-        </div>
-
-        <div class="toggles">
-          <label><input id="sportToggle" type="checkbox"> Intense sport in last 24h</label>
-          <label><input id="travelToggle" type="checkbox"> Travel / heavy workload</label>
-        </div>
-        <button id="applyReadiness" class="secondary">Adjust today's plan</button>
-      </div>
-
-      <div class="card">
-        <h3>Weekly plan</h3>
-        <div id="weekPlan" class="week-plan"></div>
-      </div>
-
-      <div class="card">
-        <h3>Current priorities</h3>
-        <div class="chips">
-          <span>Strength</span><span>Lean muscle</span><span>Athleticism</span><span>Arms</span><span>Shoulder stability</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="workout" class="view">
-      <div class="row between">
-        <div>
-          <div class="eyebrow">WORKOUT</div>
-          <h2 id="workoutTitle">Workout</h2>
-        </div>
-        <button id="finishWorkoutBtn" class="primary">Finish</button>
-      </div>
-      <p id="workoutNote" class="muted"></p>
-
-      <div class="card warmup">
-        <h3>Warm-up</h3>
-        <ul id="warmupList"></ul>
-      </div>
-
-      <div id="exerciseList"></div>
-
-      <div class="card">
-        <h3>Session notes</h3>
-        <textarea id="sessionNotes" rows="4" placeholder="Shoulder, knee, ankle, energy, anything unusual…"></textarea>
-      </div>
-    </section>
-
-    <section id="progress" class="view">
-      <div class="eyebrow">PROGRESS</div>
-      <h2>Body & strength</h2>
-
-      <div class="card">
-        <h3>Daily weigh-in</h3>
-        <div class="inline-form">
-          <input id="weightInput" type="number" step="0.1" placeholder="78.0" />
-          <button id="saveWeightBtn" class="primary">Save</button>
-        </div>
-        <div id="weightHistory" class="history"></div>
-      </div>
-
-      <div class="card">
-        <h3>Body measurements</h3>
-        <p class="muted">Measure every 4 weeks, morning, same conditions.</p>
-        <div id="measurementFields" class="measurement-grid"></div>
-        <button id="saveMeasurementsBtn" class="secondary">Save measurements</button>
-        <div id="measurementSummary" class="history"></div>
-      </div>
-
-      <div class="card">
-        <h3>Strength markers</h3>
-        <div id="strengthMarkers"></div>
-      </div>
-    </section>
-
-    <section id="history" class="view">
-      <div class="eyebrow">HISTORY</div>
-      <h2>Training log</h2>
-      <div id="sessionHistory"></div>
-    </section>
-
-    <section id="settings" class="view">
-      <div class="eyebrow">SETTINGS</div>
-      <h2>Program controls</h2>
-
-      <div class="card">
-        <h3>Weekly schedule</h3>
-        <p class="muted">The app automatically shifts sessions if sport, travel, pain, or fatigue changes your week.</p>
-        <div id="scheduleEditor"></div>
-      </div>
-
-
-      <div class="card">
-        <h3>Profile</h3>
-        <div class="row between">
-          <div>
-            <strong id="settingsProfileName">—</strong>
-            <div class="small">Signed in on this device</div>
-          </div>
-          <button id="logoutBtn" class="secondary">Log out</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Data</h3>
-        <button id="exportBtn" class="secondary">Export backup</button>
-        <label class="import-label">Import backup<input id="importInput" type="file" accept=".json"></label>
-        <button id="resetBtn" class="danger">Reset local data</button>
-      </div>
-    </section>
-  </main>
-
-  <nav class="bottom-nav">
-    <button data-view="dashboard" class="active">Home</button>
-    <button data-view="workout">Workout</button>
-    <button data-view="progress">Progress</button>
-    <button data-view="history">History</button>
-    <button data-view="settings">Settings</button>
-  </nav>
-
-  <script src="app.js"></script>
-</body>
-</html>
+<script>
+const STORE="gymAssistantV6";const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const AREAS=["Left Shoulder","Right Shoulder","Chest","Upper Back","Lower Back","Left Biceps","Right Biceps","Left Triceps","Right Triceps","Left Elbow","Right Elbow","Left Wrist","Right Wrist","Left Hip","Right Hip","Left Quad","Right Quad","Left Hamstring","Right Hamstring","Left Knee","Right Knee","Left Calf","Right Calf","Left Ankle","Right Ankle"];
+const blank=()=>({setupComplete:false,profile:{name:"",height:null,weight:null,goal:"",notes:""},routine:Object.fromEntries(DAYS.map(d=>[d,""])),workouts:{},weights:[],sessions:[],readiness:{energy:7,sleep:7,soreness:0,pain:0,soreLocs:[],painLocs:[],painNote:"",sport:false,workload:false}});
+let data=load(),plan=null;function load(){try{return Object.assign(blank(),JSON.parse(localStorage.getItem(STORE)||"{}"))}catch{return blank()}}function save(){localStorage.setItem(STORE,JSON.stringify(data))}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function todayName(){return DAYS[new Date().getDay()]}function avg(a){return a.length?a.reduce((x,y)=>x+y,0)/a.length:null}
+function step(n){document.querySelectorAll(".step").forEach(x=>x.classList.toggle("active",+x.dataset.step===n));document.querySelectorAll(".dot").forEach((x,i)=>x.classList.toggle("active",i<n));if(n===3)buildObWorkouts();if(n===4)review()}
+function routineEditor(id){const b=document.getElementById(id);b.innerHTML="";DAYS.forEach(d=>{const r=document.createElement("div");r.className="weekrow";r.innerHTML=`<strong>${d}</strong><input data-day="${d}" value="${esc(data.routine[d]||"")}" placeholder="Push / Pull / Rest">`;b.appendChild(r)})}
+function readRoutine(id){document.querySelectorAll(`#${id} [data-day]`).forEach(i=>data.routine[i.dataset.day]=i.value.trim())}
+function sessions(){return [...new Set(Object.values(data.routine).filter(x=>x&&x.toLowerCase()!=="rest"))]}
+function blankEx(){return{name:"",sets:3,min:8,max:12,weight:null,area:""}}
+function exRow(ex){const r=document.createElement("div");r.className="brow";r.innerHTML=`<label>Exercise<input data-f="name" value="${esc(ex.name||"")}" placeholder="Bench Press"></label><label>Sets<input data-f="sets" type="number" value="${ex.sets||3}"></label><label>Min reps<input data-f="min" type="number" value="${ex.min||8}"></label><label>Max reps<input data-f="max" type="number" value="${ex.max||12}"></label><label>Target kg<input data-f="weight" type="number" step=".1" value="${ex.weight??""}"></label><label>Area<select data-f="area">${["","Chest","Back","Shoulders","Biceps","Triceps","Quads","Hamstrings","Glutes","Calves","Core","Cardio","Full Body"].map(a=>`<option ${a===ex.area?"selected":""}>${a}</option>`).join("")}</select></label><button class="remove">×</button>`;r.querySelector(".remove").onclick=()=>r.remove();return r}
+function sessionBuilder(name,exs){const w=document.createElement("div");w.className="builder";w.dataset.session=name;w.innerHTML=`<div class="row between"><h3>${esc(name)}</h3><button class="secondary add">+ Exercise</button></div><div class="elist"></div>`;const l=w.querySelector(".elist");(exs.length?exs:[blankEx()]).forEach(e=>l.appendChild(exRow(e)));w.querySelector(".add").onclick=()=>l.appendChild(exRow(blankEx()));return w}
+function readBuilders(id){const o={};document.querySelectorAll(`#${id} .builder`).forEach(b=>{o[b.dataset.session]=[...b.querySelectorAll(".brow")].map(r=>{const g=f=>r.querySelector(`[data-f="${f}"]`).value;return{name:g("name").trim(),sets:+g("sets")||3,min:+g("min")||8,max:+g("max")||12,weight:g("weight")===""?null:+g("weight"),area:g("area")}}).filter(x=>x.name)});return o}
+function buildObWorkouts(){readRoutine("obRoutine");const b=document.getElementById("obWorkouts");b.innerHTML="";sessions().forEach(s=>b.appendChild(sessionBuilder(s,data.workouts[s]||[])))}
+function review(){data.workouts=readBuilders("obWorkouts");save();document.getElementById("obReview").innerHTML=`<h3>${esc(data.profile.name)}</h3><p>${data.profile.height} cm · ${data.profile.weight} kg · ${esc(data.profile.goal)}</p>${DAYS.map(d=>`<div class="weekrow"><strong>${d}</strong><span>${esc(data.routine[d]||"Rest")}</span></div>`).join("")}`}
+document.querySelectorAll(".next").forEach(b=>b.onclick=()=>{const n=+b.dataset.next;if(n===2){const name=obName.value.trim(),height=+obHeight.value,weight=+obWeight.value;if(!name||!height||!weight)return alert("Enter name, height, and weight.");data.profile={name,height,weight,goal:obGoal.value,notes:obNotes.value.trim()};data.weights=[{date:new Date().toISOString().slice(0,10),value:weight}];save()}if(n===3){readRoutine("obRoutine");if(!Object.values(data.routine).some(Boolean))return alert("Enter at least one routine day.");save()}step(n)});
+document.querySelectorAll(".prev").forEach(b=>b.onclick=()=>step(+b.dataset.prev));
+finishSetup.onclick=()=>{data.workouts=readBuilders("obWorkouts");data.setupComplete=true;save();onboard.classList.add("hidden");renderAll()};
+function readiness(){const r=data.readiness;if(r.pain>=5||r.energy<=3)return"red";if(r.pain>=3||r.soreness>=5||r.sleep<=4||r.sport||r.workload)return"yellow";return"green"}
+function hist(name){const a=[];for(let i=data.sessions.length-1;i>=0&&a.length<2;i--){const e=(data.sessions[i].exercises||[]).find(x=>x.name===name);if(e)a.push(e)}return a}
+function trend(ex){const h=hist(ex.name);if(!h.length)return{state:"new",text:"First logged exposure — use your entered target."};const s=h[0].sets.filter(x=>x.reps);if(!s.length)return{state:"hold",text:"Not enough completed set data."};const top=s.every(x=>x.reps>=ex.max);const rir=avg(s.map(x=>x.rir).filter(x=>x!==null));if(top&&(rir===null||rir>=1))return{state:"progress",text:"Top of rep range reached — increase load slightly if form is clean."};if(h.length>1){const p=avg(h[1].sets.filter(x=>x.reps).map(x=>x.reps))||0,n=avg(s.map(x=>x.reps))||0;if(n>p+.5)return{state:"progress",text:"Reps are trending upward."};if(n<p-1.5&&rir!==null&&rir<=1)return{state:"reduce",text:"Performance dropped at high effort — hold or reduce load."}}return{state:"hold",text:"Performance is stable — keep building clean reps."}}
+function affected(area,locs){const l=locs.join(" ").toLowerCase(),a=(area||"").toLowerCase();if(a==="shoulders")return l.includes("shoulder");if(a==="chest")return l.includes("chest")||l.includes("shoulder");if(a==="back")return l.includes("back")||l.includes("shoulder");if(a==="biceps")return l.includes("biceps")||l.includes("elbow");if(a==="triceps")return l.includes("triceps")||l.includes("elbow");if(a==="quads")return l.includes("quad")||l.includes("knee")||l.includes("hip");if(a==="hamstrings")return l.includes("hamstring")||l.includes("knee")||l.includes("hip")||l.includes("lower back");if(a==="glutes")return l.includes("hip")||l.includes("lower back");if(a==="calves")return l.includes("calf")||l.includes("ankle");if(a==="core")return l.includes("lower back");if(a==="cardio")return l.includes("ankle")||l.includes("knee")||l.includes("calf");return false}
+function makePlan(){const s=(data.routine[todayName()]||"Rest").trim()||"Rest",lvl=readiness(),r=data.readiness,reasons=[];if(s.toLowerCase()==="rest")return{session:"Rest",level:lvl,reasons:["Your routine marks today as a rest day."],exercises:[]};if(r.sport)reasons.push("Intense sport in the last 24h.");if(r.workload)reasons.push("Heavy workload / travel detected.");if(r.painLocs.length)reasons.push("Pain: "+r.painLocs.join(", "));if(r.soreLocs.length)reasons.push("Soreness: "+r.soreLocs.join(", "));let exs=(data.workouts[s]||[]).map(ex=>{const t=trend(ex);let sets=ex.sets,w=ex.weight,status=t.state,note=t.text;if(lvl==="yellow"&&sets>=3)sets--;if(r.workload&&sets>=3)sets--;const ph=affected(ex.area,r.painLocs),sh=affected(ex.area,r.soreLocs);if(ph&&r.pain>=5)return{...ex,sets:0,weight:w,status:"skip",coach:"Skipped because pain overlaps this exercise area."};if(ph&&r.pain>=3){sets=Math.max(1,sets-1);if(w)w=+(w*.9).toFixed(1);status="reduce";note="Pain overlaps this area — reduced load/volume."}else if(sh&&r.soreness>=5){sets=Math.max(1,sets-1);status="reduce";note="High soreness overlaps this area — reduced volume."}else if(t.state==="progress"&&w){w=+(w+(w<10?1:w<30?2:2.5)).toFixed(1)}if(r.sport&&["Quads","Hamstrings","Glutes","Calves","Cardio"].includes(ex.area)){sets=Math.max(1,sets-1);status="reduce";note="Reduced after recent intense sport."}return{...ex,sets,weight:w,status,coach:note}});return{session:s,level:lvl,reasons,exercises:exs}}
+function renderHome(){plan=makePlan();homeTitle.textContent=plan.session;homeSummary.textContent=plan.session==="Rest"?"Recovery day":`${plan.exercises.filter(x=>x.sets>0).length} exercises · ${plan.level.toUpperCase()} readiness`;coachBadge.textContent=plan.level.toUpperCase();coachBadge.style.background=plan.level==="green"?"var(--good)":plan.level==="yellow"?"var(--warn)":"var(--bad)";coachHeadline.textContent=plan.level==="green"?"Full session recommended":plan.level==="yellow"?"Modified session recommended":"Recovery-first recommendation";coachText.textContent=`Built from ${data.profile.name}'s routine, today's readiness, pain/soreness location, and recent performance.`;coachReasons.innerHTML=(plan.reasons.length?plan.reasons:["No major recovery flags detected."]).map(x=>`<div class="card" style="padding:9px">${esc(x)}</div>`).join("");weekView.innerHTML=DAYS.map(d=>`<div class="weekrow ${d===todayName()?"today":""}"><strong>${d}</strong><span>${esc(data.routine[d]||"Rest")}</span></div>`).join("")}
+function renderLocs(){const mk=(id,sel)=>{document.getElementById(id).innerHTML=AREAS.map(a=>`<label class="loc"><input type="checkbox" value="${a}" ${sel.includes(a)?"checked":""}> ${a}</label>`).join("")};mk("soreLocs",data.readiness.soreLocs);mk("painLocs",data.readiness.painLocs);painNote.value=data.readiness.painNote||"";boxes()}
+function boxes(){soreBox.classList.toggle("hidden",+sorenessRange.value===0);painBox.classList.toggle("hidden",+painRange.value===0)}
+["energy","sleep","soreness","pain"].forEach(k=>{const r=document.getElementById(k+"Range"),o=document.getElementById(k+"Val");r.value=data.readiness[k];o.textContent=r.value;r.oninput=()=>{o.textContent=r.value;if(k==="soreness"||k==="pain")boxes()}});sport.checked=data.readiness.sport;workload.checked=data.readiness.workload;
+function checked(id){return[...document.querySelectorAll(`#${id} input:checked`)].map(x=>x.value)}
+adjustBtn.onclick=()=>{["energy","sleep","soreness","pain"].forEach(k=>data.readiness[k]=+document.getElementById(k+"Range").value);data.readiness.sport=sport.checked;data.readiness.workload=workload.checked;data.readiness.soreLocs=data.readiness.soreness?checked("soreLocs"):[];data.readiness.painLocs=data.readiness.pain?checked("painLocs"):[];data.readiness.painNote=painNote.value.trim();if(data.readiness.soreness&&!data.readiness.soreLocs.length)return alert("Select where you are sore.");if(data.readiness.pain&&!data.readiness.painLocs.length)return alert("Select where you feel pain.");save();renderAll()}
+function renderToday(){plan=makePlan();todayTitle.textContent=plan.session;todayNote.textContent=plan.reasons.join(" ")||"Full planned session.";exerciseList.innerHTML="";if(!plan.exercises.length){exerciseList.innerHTML='<div class="card"><h3>Recovery day</h3><p class="muted">No gym workout scheduled.</p></div>';return}plan.exercises.forEach((ex,i)=>{const c=document.createElement("div");c.className="exercise "+(ex.status||"");if(!ex.sets){c.innerHTML=`<h3>${i+1}. ${esc(ex.name)}</h3><p class="small" style="color:var(--bad)">${esc(ex.coach)}</p>`;exerciseList.appendChild(c);return}c.dataset.exercise=ex.name;c.innerHTML=`<h3>${i+1}. ${esc(ex.name)}</h3><div class="target">${ex.sets} sets · ${ex.min}–${ex.max} reps · ${ex.weight?ex.weight+" kg":"normal load"}</div><p class="small"><strong>Coach:</strong> ${esc(ex.coach)}</p>`;for(let s=1;s<=ex.sets;s++){const r=document.createElement("div");r.className="setrow";r.innerHTML=`<strong>${s}</strong><input type="number" placeholder="reps"><input type="number" step=".1" placeholder="kg"><input type="number" placeholder="RIR">`;c.appendChild(r)}exerciseList.appendChild(c)})}
+finishBtn.onclick=()=>{if(!plan||plan.session==="Rest")return alert("Today is a rest day.");const exercises=[...document.querySelectorAll(".exercise[data-exercise]")].map(c=>({name:c.dataset.exercise,sets:[...c.querySelectorAll(".setrow")].map(r=>{const i=r.querySelectorAll("input");return{reps:+i[0].value||null,weight:+i[1].value||null,rir:i[2].value===""?null:+i[2].value}}).filter(x=>x.reps||x.weight)})).filter(x=>x.sets.length);data.sessions.push({date:new Date().toISOString(),name:plan.session,exercises,notes:sessionNotes.value.trim()});sessionNotes.value="";save();renderAll();switchView("progress")}
+function renderProgress(){weightHistory.innerHTML=data.weights.slice(-10).reverse().map(w=>`<div class="card" style="padding:9px">${w.date}<span style="float:right">${w.value.toFixed(1)} kg</span></div>`).join("")||"<p>No weigh-ins.</p>";const names=[...new Set(data.sessions.flatMap(s=>s.exercises.map(e=>e.name)))];trendList.innerHTML=names.map(n=>{const d=Object.values(data.workouts).flat().find(x=>x.name===n);if(!d)return"";const t=trend(d);return`<div class="card" style="padding:9px"><strong>${esc(n)}</strong><br><span class="small">${esc(t.text)}</span></div>`}).join("")||"<p>No trends yet.</p>";const cov={};const cut=new Date();cut.setDate(cut.getDate()-7);data.sessions.filter(s=>new Date(s.date)>=cut).forEach(s=>{const seen=new Set();s.exercises.forEach(e=>{const d=Object.values(data.workouts).flat().find(x=>x.name===e.name);if(d&&d.area){cov[d.area]=cov[d.area]||{sets:0,freq:0};cov[d.area].sets+=e.sets.length;seen.add(d.area)}});seen.forEach(a=>cov[a].freq++)});coverage.innerHTML=Object.entries(cov).map(([a,v])=>`<div class="card" style="padding:9px"><strong>${a}</strong><span style="float:right">${v.sets} sets · ${v.freq}×</span></div>`).join("")||"<p>No coverage data.</p>"}
+saveWeight.onclick=()=>{const v=+weightInput.value;if(!v)return;data.weights.push({date:new Date().toISOString().slice(0,10),value:v});data.profile.weight=v;weightInput.value="";save();renderAll()}
+function renderPlan(){routineEditor("planRoutine");planWorkouts.innerHTML="";sessions().forEach(s=>planWorkouts.appendChild(sessionBuilder(s,data.workouts[s]||[])))}
+saveRoutine.onclick=()=>{readRoutine("planRoutine");save();renderPlan();renderHome();alert("Routine saved.")};saveWorkouts.onclick=()=>{data.workouts=readBuilders("planWorkouts");save();renderAll();alert("Workouts saved.")}
+function renderSettings(){setName.value=data.profile.name||"";setHeight.value=data.profile.height||"";setWeight.value=data.profile.weight||"";setGoal.value=data.profile.goal||"";setNotes.value=data.profile.notes||""}saveProfile.onclick=()=>{data.profile={name:setName.value.trim(),height:+setHeight.value||null,weight:+setWeight.value||null,goal:setGoal.value.trim(),notes:setNotes.value.trim()};save();renderAll();alert("Profile saved.")}
+exportBtn.onclick=()=>{const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="gym-assistant-v6-backup.json";a.click()};importInput.onchange=async e=>{try{data=Object.assign(blank(),JSON.parse(await e.target.files[0].text()));save();renderAll();onboard.classList.toggle("hidden",data.setupComplete)}catch{alert("Invalid backup.")}};resetBtn.onclick=()=>{if(confirm("Reset everything to a clean slate?")){localStorage.removeItem(STORE);data=blank();location.reload()}}
+function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));document.querySelectorAll(".bottom button").forEach(b=>b.classList.toggle("active",b.dataset.view===id));if(id==="today")renderToday();if(id==="progress")renderProgress();if(id==="plan")renderPlan();if(id==="settings")renderSettings()}document.querySelectorAll(".bottom button").forEach(b=>b.onclick=()=>switchView(b.dataset.view));openToday.onclick=()=>switchView("today");
+function renderAll(){if(!data.setupComplete)return;renderHome();renderToday();renderProgress();renderPlan();renderSettings();renderLocs()}
+if(!data.setupComplete){onboard.classList.remove("hidden");routineEditor("obRoutine");step(1)}else{renderAll()}
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=6"));
+</script>
+</body></html>
